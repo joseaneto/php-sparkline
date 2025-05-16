@@ -66,6 +66,31 @@ $days = DB::query()
     ));
 ```
 
+### Laravel 12 Example
+
+If you're using Laravel 12, you can integrate with Eloquent like this:
+
+```php
+// Using Laravel 12 query builder
+$days = DB::table('posts')
+    ->selectRaw('DATE(published_at) as published_date, COUNT(*) as visit_count')
+    ->where('published_at', '>=', now()->subDays(30))
+    ->groupBy('published_date')
+    ->orderBy('published_date')
+    ->get()
+    ->map(fn ($row) => new SparkLineDay(
+        count: $row->visit_count,
+        day: new DateTimeImmutable($row->published_date),
+    ));
+
+// Create the sparkline
+$sparkLine = SparkLine::new(collect($days))
+    ->withColors('#4285F4', '#31ACF2', '#2BC9F4');
+    
+// In your Blade view
+{!! $sparkLine !!}
+```
+
 ### Customization
 
 This package offers some methods to customize the sparkline. First off, you can pick any amount of colors and the sparkline will automatically generate a gradient from them:

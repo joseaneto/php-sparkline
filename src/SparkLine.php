@@ -11,8 +11,6 @@ use Spatie\Period\Period;
 
 final class SparkLine
 {
-    private Collection $days;
-
     private int $maxValue;
 
     private int $maxItemAmount;
@@ -30,8 +28,9 @@ final class SparkLine
         return new self($days);
     }
 
-    public function __construct(Collection $days)
-    {
+    public function __construct(
+        private readonly Collection $days
+    ) {
         $this->days = $days
             ->sortBy(fn (SparkLineDay $day) => $day->day->getTimestamp())
             ->mapWithKeys(fn (SparkLineDay $day) => [$day->day->format('Y-m-d') => $day]);
@@ -165,7 +164,7 @@ final class SparkLine
     {
         $step = floor($this->width / $this->maxItemAmount);
 
-        return collect(range(0, $this->maxItemAmount))
+        return \Illuminate\Support\Collection::make(range(0, $this->maxItemAmount))
             ->map(fn (int $days) => (new DateTimeImmutable("-{$days} days"))->format('Y-m-d'))
             ->reverse()
             ->mapWithKeys(function (string $key) {
